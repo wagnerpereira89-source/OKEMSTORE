@@ -48,7 +48,7 @@ export const config = {
   // ─── Web Push (notificações) ─────────────────────────────────────
   // Esta chave PÚBLICA tem que ser EXATAMENTE a mesma do plugin fk-webpush.
   // A chave PRIVADA vai SÓ no plugin, nunca aqui.
-  vapidPublicKey: 'BLgtbPsNGWe4wBaE4F_drlOJcO_SkjwuIudmAwCUprhBtnYLwYZJLSUsqy5vMw8tXb1QpuqOdr7Qogl6IFM7bsM',
+  vapidPublicKey: 'BIZzofXyEaB8XM6oxNQD3XK_OA2NJJneodRutTg4-bawyiu_jeH0uDH_xKEK7u_WwzsEtBvIiNzlGAkPItcNpCQ',
 
   // ─── Rodapé ──────────────────────────────────────────────────────
   agencyLogo: '/logo%20azul%20escuro.png',

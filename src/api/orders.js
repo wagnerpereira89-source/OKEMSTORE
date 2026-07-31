@@ -159,9 +159,33 @@ export function detectPaymentMethod(notes = []) {
   return 'Outros'
 }
  
-export async function getOrdersPaymentMethods(orders, concurrency = 5) {
+// Detecta PIX/Cartão a partir do próprio pedido (título + slug do gateway),
+// sem custo de requisição. Retorna 'PIX' | 'Cartão de Crédito' | null (ambíguo).
+function detectFromOrder(order) {
+  const hint = `${order.payment_method_title || ''} ${order.payment_method || ''}`.toLowerCase()
+  if (hint.includes('pix')) return 'PIX'
+  if (hint.includes('cart') || hint.includes('cred') || hint.includes('card') || hint.includes('credit')) {
+    return 'Cartão de Crédito'
+  }
+  return null
+}
+
+// Descobre o método de pagamento dos pedidos.
+// 1) Resolve a grande maioria pelo dado que já vem no pedido (0 requisições).
+// 2) Só busca as NOTAS dos pedidos realmente ambíguos — e com um teto de
+//    segurança, pra nunca disparar centenas de chamadas e travar o app.
+export async function getOrdersPaymentMethods(orders, concurrency = 6, maxNoteFetches = 40) {
   const results = {}
-  const queue = [...orders]
+  const needNotes = []
+
+  for (const order of orders) {
+    const fromOrder = detectFromOrder(order)
+    if (fromOrder) results[order.id] = fromOrder
+    else needNotes.push(order)
+  }
+
+  // Fallback via notas apenas para os ambíguos (limitado)
+  const queue = needNotes.slice(0, maxNoteFetches)
   async function worker() {
     while (queue.length > 0) {
       const order = queue.shift()
@@ -170,7 +194,6 @@ export async function getOrdersPaymentMethods(orders, concurrency = 5) {
       results[order.id] = detectPaymentMethod(notes)
     }
   }
-  const workers = Array.from({ length: concurrency }, () => worker())
-  await Promise.all(workers)
+  await Promise.all(Array.from({ length: concurrency }, () => worker()))
   return results
 }

@@ -386,7 +386,7 @@ export default function Dashboard() {
 
       // Busca métodos de pagamento reais (PIX vs Cartão) das notas dos pedidos
       if (curr.length > 0) {
-        getOrdersPaymentMethods(curr.slice(0, 200)).then(setPaymentMethodsMap).catch(() => {})
+        getOrdersPaymentMethods(curr).then(setPaymentMethodsMap).catch(() => {})
       } else {
         setPaymentMethodsMap({})
       }
